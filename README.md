@@ -1,4 +1,4 @@
-# Ansible Localhost Development Setup (Ubuntu 24.04)
+## Ansible Localhost Development Setup (Ubuntu 24.04)
 
 This repository contains Ansible playbooks to configure a local Ubuntu 24.04 virtual machine. All playbooks are intended to run on **localhost** (local VM), not on remote servers.
 
