@@ -71,7 +71,7 @@ Run all commands from the project root directory.
 
 1. Create User and Set Hostname
 ```
- ansible-playbook -i inventory.ini user-create.yaml --ask-become-pass
+ ansible-playbook -i inventory.ini user-create.yaml
 ```
 
  You will be prompted for:
@@ -83,7 +83,7 @@ Run all commands from the project root directory.
 
 2. Setup Development Environment
 ```
-ansible-playbook -i inventory.ini setup.yaml --ask-become-pass
+ansible-playbook -i inventory.ini setup.yaml
 ```
 This installs:
   - Node.js
@@ -94,7 +94,7 @@ This installs:
 
 3. Install PostgreSQL and PostGIS
 ```
-ansible-playbook -i inventory.ini postgres.yaml --ask-become-pass
+ansible-playbook -i inventory.ini postgres.yaml
 ```
 
 Default PostgreSQL configuration:
