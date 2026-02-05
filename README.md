@@ -49,11 +49,19 @@ Installs a full local development environment:
 **Install Ansible:**
 ```
 sudo apt update
+sudo apt install -y software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
 sudo apt install -y ansible
 ```
 ### Verify installation
 ```
 ansible --version
+```
+### Install Required Ansible Collections
+Your PostgreSQL playbook uses community.postgresql.
+Install it before running playbooks:
+```
+ansible-galaxy collection install community.postgresql
 ```
 
 ### Inventory Configuration (Localhost)
