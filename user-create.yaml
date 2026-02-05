@@ -1,0 +1,48 @@
+- name: Setup Ubuntu 24 Host
+  hosts: dev
+  become: true
+
+  vars_prompt:
+    - name: "location"
+      prompt: "Location (INAHM / UAE)"
+      private: no
+    - name: "firstname"
+      prompt: "First name"
+      private: no
+    - name: "lastname"
+      prompt: "Last name"
+      private: no
+    - name: "empid"
+      prompt: "Employee ID"
+      private: no
+
+  vars:
+    username: "{{ firstname }}-fero"
+    fullname: "{{ firstname | lower }} {{ lastname | lower }}"
+    new_hostname: "{{ location }}{{ firstname | upper }}{{ empid }}"
+
+  tasks:
+
+    - name: Create user with sudo privileges
+      user:
+        name: "{{ username }}"
+        comment: "{{ fullname }}"
+        shell: /bin/bash
+        create_home: yes
+        state: present
+        groups: sudo
+        append: yes
+      register: user_created
+
+    - name: Set password for user (optional)
+      user:
+        name: "{{ username }}"
+        password: "{{ 'NewEmployee@1234' | password_hash('sha512') }}"
+      when: user_created.changed
+
+    - name: Set hostname
+      hostname:
+        name: "{{ new_hostname }}"
+
+    - name: Refresh facts after hostname change
+      setup:

@@ -1,0 +1,146 @@
+- name: Full development environment setup on Ubuntu 24.04
+  hosts: dev
+  become: yes
+
+  vars:
+    excluded_users:
+      - root
+      - www-data
+    nvm_version: "v0.40.1"
+
+  tasks:
+    # System Updates
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+
+    - name: Install base dependencies
+      apt:
+        name:
+          - curl
+          - wget
+          - ca-certificates
+          - gnupg
+          - lsb-release
+          - software-properties-common
+        state: present
+
+    # Detect users
+    - name: Find home directories under /home
+      find:
+        paths: /home
+        file_type: directory
+        depth: 1
+      register: home_dirs
+
+    - name: Build user list from /home (exclude system users)
+      set_fact:
+        home_users: >-
+          {{
+            home_dirs.files
+            | map(attribute='path')
+            | map('basename')
+            | reject('in', excluded_users)
+            | list
+          }}
+
+    - name: Check users exist in /etc/passwd
+      getent:
+        database: passwd
+        key: "{{ item }}"
+      loop: "{{ home_users }}"
+      register: passwd_check
+      ignore_errors: true
+
+    - name: Build final valid user list
+      set_fact:
+        detected_users: >-
+          {{
+            passwd_check.results
+            | rejectattr('failed', 'true')
+            | map(attribute='item')
+            | list
+          }}
+
+    - name: Show detected users
+      debug:
+        msg: "Installing NVM + Node for users: {{ detected_users }}"
+
+    # NVM + Node 
+    - name: Install NVM for each user
+      become: yes
+      become_user: "{{ item }}"
+      shell: |
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/{{ nvm_version }}/install.sh | bash
+      args:
+        creates: "/home/{{ item }}/.nvm/nvm.sh"
+        executable: /bin/bash
+      loop: "{{ detected_users }}"
+
+    - name: Install Node.js LTS for each user
+      become: yes
+      become_user: "{{ item }}"
+      shell: |
+        export NVM_DIR="/home/{{ item }}/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+        nvm install --lts
+        nvm alias default lts/*
+      args:
+        executable: /bin/bash
+      loop: "{{ detected_users }}"
+
+    # Redis 
+    - name: Install Redis
+      apt:
+        name: redis-server
+        state: present
+
+    - name: Enable and start Redis
+      systemd:
+        name: redis-server
+        enabled: yes
+        state: started
+
+    # VS Code
+    - name: Add Microsoft GPG key
+      apt_key:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        state: present
+
+    - name: Add VS Code repository
+      apt_repository:
+        repo: deb [arch=amd64] https://packages.microsoft.com/repos/code stable main
+        state: present
+
+    - name: Install VS Code
+      apt:
+        name: code
+        state: present
+        update_cache: yes
+
+    # Google Chrome 
+    - name: Download Google Chrome deb
+      get_url:
+        url: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        dest: /tmp/google-chrome.deb
+
+    - name: Install Google Chrome
+      apt:
+        deb: /tmp/google-chrome.deb
+
+    # PyCharm Community
+    - name: Install snapd
+      apt:
+        name: snapd
+        state: present
+
+    - name: Install PyCharm Community via snap
+      snap:
+        name: pycharm-community
+        classic: yes
+
