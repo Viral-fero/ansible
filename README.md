@@ -16,13 +16,13 @@ This repository contains Ansible playbooks to configure a local Ubuntu 24.04 vir
 
 ### Playbooks Overview
 
-### `user-create.yaml`
+### user-create.yaml
 - Creates a new local user
 - Sets the hostname based on user input
 - Adds the user to the `sudo` group
 - **No automatic reboot is performed** after hostname change
 
-### `setup.yaml`
+### setup.yaml
 Installs a full local development environment:
 - Base system packages
 - NVM + Node.js (LTS) for all detected users
@@ -31,22 +31,20 @@ Installs a full local development environment:
 - Google Chrome
 - PyCharm Community Edition
 
-### `postgres.yaml`
+### postgres.yaml
 - Installs PostgreSQL 16
 - Installs PostGIS
 - Creates a PostgreSQL user and database
 - PostgreSQL user is created with **SUPERUSER** privileges
 - Enables PostGIS extension
   
----
-
 ### Prerequisites
 
 - Ubuntu 24.04
 - Local VM or local machine
 - Sudo privileges
 
-**Install Ansible:**
+### Install Ansible:
 ```
 sudo apt update
 sudo apt install -y software-properties-common
