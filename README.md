@@ -1,3 +1,62 @@
+# Ansible Localhost Development Setup (Ubuntu 24.04)
+
+This repository contains Ansible playbooks to configure a local Ubuntu 24.04 virtual machine. All playbooks are intended to run on **localhost** (local VM), not on remote servers.
+
+---
+
+## Repository Structure
+
+- `inventory.ini`
+- `user-create.yaml`
+- `setup.yaml`
+- `postgres.yaml`
+- `README.md`
+
+---
+
+## Playbooks Overview
+
+### `user-create.yaml`
+- Creates a new local user
+- Sets the hostname based on user input
+- Adds the user to the `sudo` group
+- Reboots the system if the hostname changes
+
+### `setup.yaml`
+Installs a full local development environment:
+- Base system packages
+- NVM + Node.js (LTS) for all detected users
+- Redis
+- Visual Studio Code
+- Google Chrome
+- PyCharm Community Edition
+
+### `postgres.yaml`
+- Installs PostgreSQL 16
+- Installs PostGIS
+- Creates a PostgreSQL user and database
+- Enables PostGIS extension
+
+---
+
+## Prerequisites
+
+- Ubuntu 24.04
+- Local VM or local machine
+- Sudo privileges
+
+**Install Ansible:**
+```bash
+sudo apt update
+sudo apt install -y ansible
+```
+## Verify installation
+```
+ansible --version
+```
+
+
+#=========
 Ansible Localhost Development Setup (Ubuntu 24.04)
 
 This repository contains Ansible playbooks to configure a local Ubuntu 24.04 virtual machine.
